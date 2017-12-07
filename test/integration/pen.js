@@ -2,7 +2,7 @@ const Worker = require('tiny-worker');
 const path = require('path');
 const test = require('tap').test;
 
-const Scratch3PenBlocks = require('../../src/blocks/scratch3_pen');
+const Scratch3PenBlocks = require('../../src/extensions/scratch3_pen/index.js');
 const VirtualMachine = require('../../src/index');
 const dispatch = require('../../src/dispatch/central-dispatch');
 
@@ -48,7 +48,6 @@ test('pen', t => {
         vm.setCompatibilityMode(false);
         vm.setTurboMode(false);
         vm.loadProject(project)
-            .then(() => vm.extensionManager.loadExtensionURL('pen')) /** @TODO: loadProject should load extensions */
             .then(() => {
                 vm.greenFlag();
 

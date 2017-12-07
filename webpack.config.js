@@ -10,6 +10,10 @@ const base = {
         port: process.env.PORT || 8073
     },
     devtool: 'cheap-module-source-map',
+    output: {
+        library: 'VirtualMachine',
+        filename: '[name].js'
+    },
     module: {
         rules: [{
             test: /\.js$/,
@@ -20,12 +24,12 @@ const base = {
             }
         }]
     },
-    plugins: [
+    plugins: process.env.NODE_ENV === 'production' ? [
         new webpack.optimize.UglifyJsPlugin({
             include: /\.min\.js$/,
             minimize: true
         })
-    ]
+    ] : []
 };
 
 module.exports = [
@@ -37,8 +41,8 @@ module.exports = [
             'scratch-vm.min': './src/index.js'
         },
         output: {
-            path: path.resolve(__dirname, 'dist/web'),
-            filename: '[name].js'
+            libraryTarget: 'umd',
+            path: path.resolve('dist', 'web')
         },
         module: {
             rules: base.module.rules.concat([
@@ -56,11 +60,15 @@ module.exports = [
             'scratch-vm': './src/index.js'
         },
         output: {
-            library: 'VirtualMachine',
             libraryTarget: 'commonjs2',
-            path: path.resolve(__dirname, 'dist/node'),
-            filename: '[name].js'
-        }
+            path: path.resolve('dist', 'node')
+        },
+        plugins: base.plugins.concat([
+            new CopyWebpackPlugin([{
+                from: './src/extensions/scratch3_music/assets',
+                to: 'assets/scratch3_music'
+            }])
+        ])
     }),
     // Playground
     defaultsDeep({}, base, {
@@ -81,8 +89,8 @@ module.exports = [
             ]
         },
         output: {
-            path: path.resolve(__dirname, 'playground'),
-            filename: '[name].js'
+            libraryTarget: 'umd',
+            path: path.resolve('playground')
         },
         module: {
             rules: base.module.rules.concat([
